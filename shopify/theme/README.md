@@ -1,7 +1,7 @@
 # ثيم بيلا روزا العربي (Horizon)
 
 هذه نُسخ حرفية من ملفات JSON الأربعة في الثيم المنشور «بيلا روزا — الثيم العربي»
-(`gid://shopify/OnlineStoreTheme/192373424409`، 24 سبتمبر 2026)، رُفعت عبر `themeFilesUpsert`.
+(`gid://shopify/OnlineStoreTheme/192373981465`، 24 سبتمبر 2026)، رُفعت عبر `themeFilesUpsert`.
 باقي ملفات الثيم (liquid/css/js) هي ملفات Horizon الأصلية بلا تعديل.
 
 | الملف | ماذا يضبط |

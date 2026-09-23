@@ -1649,7 +1649,7 @@
                     "p": {
                       "type": "text",
                       "settings": {
-                        "text": "<p>عند الاستلام، تحويل بنكي، أو بطاقة ومدى وApple Pay.</p>",
+                        "text": "<p>ادفعي نقداً عند الاستلام أو بالتحويل البنكي.</p>",
                         "width": "100%",
                         "max_width": "normal",
                         "alignment": "center",

@@ -197,7 +197,7 @@ function renderShop(params) {
             ${state.categories.map(c => `<a class="chip ${category && category.id === c.id ? 'active' : ''}" href="#/shop?cat=${esc(c.slug || c.id)}">${esc(c.name)}</a>`).join('')}
         </div>
         <form class="toolbar" id="shopForm">
-            <input type="search" name="q" value="${esc(q)}" placeholder="ابحثي عن منتج…" aria-label="بحث">
+            <input type="search" name="q" value="${esc(q)}" placeholder="ابحثي عن فستان أو طقم…" aria-label="بحث">
             <select name="sort" aria-label="الترتيب">
                 <option value="new" ${sort === 'new' ? 'selected' : ''}>الأحدث</option>
                 <option value="asc" ${sort === 'asc' ? 'selected' : ''}>السعر: من الأقل</option>
@@ -243,7 +243,7 @@ function renderProduct(id) {
             <h1>${esc(p.name)}</h1>
             <div class="price">${money(p.price)}${sale ? `<span class="price-old">${money(p.compare_at_price)}</span>` : ''}</div>
             <p class="muted small">شامل ضريبة القيمة المضافة</p>
-            ${sizes.length ? `<div class="opt-group"><div class="opt-label"><span>المقاس</span></div><div class="opts" id="sizeOpts">${sizes.map(s => `<button type="button" class="opt ${sel.size === s ? 'active' : ''}" data-size="${esc(s)}" ${anyStock(s, undefined) ? '' : 'disabled'}>${esc(s)}</button>`).join('')}</div></div>` : ''}
+            ${sizes.length ? `<div class="opt-group"><div class="opt-label"><span>المقاس / العمر</span></div><div class="opts" id="sizeOpts">${sizes.map(s => `<button type="button" class="opt ${sel.size === s ? 'active' : ''}" data-size="${esc(s)}" ${anyStock(s, undefined) ? '' : 'disabled'}>${esc(s)}</button>`).join('')}</div></div>` : ''}
             ${colors.length ? `<div class="opt-group"><div class="opt-label"><span>اللون</span></div><div class="opts" id="colorOpts">${colors.map(c => `<button type="button" class="opt ${sel.color === c ? 'active' : ''}" data-color="${esc(c)}" ${anyStock(undefined, c) ? '' : 'disabled'}>${esc(c)}</button>`).join('')}</div></div>` : ''}
             <div class="opt-group"><div class="opt-label"><span>الكمية</span></div>
                 <div class="qty"><button type="button" id="qtyMinus" aria-label="أقل">−</button><span id="qtyVal">1</span><button type="button" id="qtyPlus" aria-label="أكثر">+</button></div>

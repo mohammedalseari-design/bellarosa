@@ -40,7 +40,7 @@ export async function renderProducts(content, params) {
 
 function variantRow(v = {}) {
     return `<tr data-vid="${esc(v.id || '')}">
-        <td><input name="size" value="${esc(v.size || '')}" placeholder="M / 54"></td>
+        <td><input name="size" value="${esc(v.size || '')}" placeholder="4-5 سنوات"></td>
         <td><input name="color" value="${esc(v.color || '')}" placeholder="اختياري"></td>
         <td><input name="stock" type="number" min="0" value="${v.stock ?? 0}"></td>
         <td><input name="price_override" type="number" min="0" step="0.01" value="${v.price_override ?? ''}" placeholder="نفس السعر"></td>
@@ -71,11 +71,12 @@ async function openProductEditor(p) {
         <label class="check"><input type="checkbox" name="is_featured" ${p.is_featured ? 'checked' : ''}> ضمن مختارات الصفحة الرئيسية</label>
 
         <h3 style="margin-top:18px">المقاسات والألوان</h3>
-        <p class="small muted">كل سطر خيار مستقل بمخزونه. اتركي المقاس أو اللون فارغاً إن لم ينطبق. الحد الأدنى سطر واحد.</p>
+        <p class="small muted">كل سطر خيار مستقل بمخزونه (المقاس = العمر عادةً). اتركي المقاس أو اللون فارغاً إن لم ينطبق. الحد الأدنى سطر واحد.</p>
         <div class="variants table-wrap"><table><thead><tr><th>المقاس</th><th>اللون</th><th>المخزون</th><th>سعر خاص</th><th>SKU</th><th>ظاهر</th><th></th></tr></thead>
         <tbody id="variantRows">${(p.product_variants || []).slice().sort((a, b) => a.sort_order - b.sort_order).map(variantRow).join('') || variantRow()}</tbody></table></div>
         <button type="button" class="btn btn-outline btn-sm" id="addVariant" style="margin-top:8px">+ إضافة خيار</button>
-        <button type="button" class="btn btn-outline btn-sm" id="addSizes" style="margin-top:8px">+ المقاسات S M L XL</button>
+        <button type="button" class="btn btn-outline btn-sm" id="addSizes" style="margin-top:8px">+ أعمار 2–11 سنة</button>
+        <button type="button" class="btn btn-outline btn-sm" id="addBabySizes" style="margin-top:8px">+ مواليد 0–24 شهر</button>
 
         <h3 style="margin-top:18px">الصور</h3>
         <div class="images" id="imageList"></div>
@@ -123,14 +124,16 @@ async function openProductEditor(p) {
         renderImages();
     });
     $('#addVariant', body).addEventListener('click', () => $('#variantRows', body).insertAdjacentHTML('beforeend', variantRow()));
-    $('#addSizes', body).addEventListener('click', () => {
+    const addSizes = (sizes) => {
         const rows = $('#variantRows', body);
         const existing = $$('tr', rows).map(tr => $('[name=size]', tr).value.trim());
-        for (const s of ['S', 'M', 'L', 'XL']) if (!existing.includes(s)) rows.insertAdjacentHTML('beforeend', variantRow({ size: s, stock: 0 }));
+        for (const s of sizes) if (!existing.includes(s)) rows.insertAdjacentHTML('beforeend', variantRow({ size: s, stock: 0 }));
         // إزالة السطر الفارغ الأول إن كان بلا بيانات
         const first = $('tr', rows);
         if (first && !$('[name=size]', first).value && !$('[name=color]', first).value && !first.dataset.vid && $$('tr', rows).length > 1) first.remove();
-    });
+    };
+    $('#addSizes', body).addEventListener('click', () => addSizes(['2-3 سنوات', '4-5 سنوات', '6-7 سنوات', '8-9 سنوات', '10-11 سنة']));
+    $('#addBabySizes', body).addEventListener('click', () => addSizes(['0-3 أشهر', '3-6 أشهر', '6-12 شهر', '12-18 شهر', '18-24 شهر']));
     $('#variantRows', body).addEventListener('click', e => {
         const b = e.target.closest('[data-del]'); if (!b) return;
         if ($$('tr', $('#variantRows', body)).length === 1) { toast('يلزم خيار واحد على الأقل', true); return; }

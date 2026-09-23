@@ -1,6 +1,6 @@
 -- حذف البيانات التجريبية (scripts/seed-demo.sql) قبل الإطلاق. لا يمس الطلبات الحقيقية ولا الإعدادات.
 -- الطلبات التجريبية (إن وُجدت) تُحذف أولاً لأن الأصناف تشير إلى المتغيرات.
-delete from public.orders where customer_phone in ('0500000099', '0551234567', '0551112222', '0559998888');
-delete from public.products where id like 'c0000000-0000-4000-8000-0000000000__';
-delete from public.categories where id like 'a0000000-0000-4000-8000-0000000000__';
+delete from public.orders where customer_phone in ('0500000099', '0551234567', '0551112222', '0559998888', '0500000098');
+delete from public.products where id::text like 'c0000000-0000-4000-8000-0000000000__';
+delete from public.categories where id::text like 'a0000000-0000-4000-8000-0000000000__';
 -- مدن الشحن التجريبية تبقى لأنها مفيدة؛ عدّليها من اللوحة.

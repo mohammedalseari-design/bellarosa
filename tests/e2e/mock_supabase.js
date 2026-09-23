@@ -11,17 +11,17 @@ const uuid = () => 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, c => 
 function seed() {
     const db = {
         settings: [
-            ['store_name', 'بيلا روزا'], ['store_tagline', 'فساتين وملابس بذوق مختلف'], ['store_phone', '0500000000'], ['store_whatsapp', '966500000000'],
+            ['store_name', 'بيلا روزا'], ['store_tagline', 'فساتين وملابس أطفال إسبانية بذوق مختلف'], ['store_phone', '0500000000'], ['store_whatsapp', '966500000000'],
             ['store_instagram', 'bellarosa'], ['announcement', 'شحن مجاني للطلبات فوق 500 ر.س'], ['currency', 'ر.س'], ['vat_enabled', '1'], ['vat_rate', '15'],
             ['vat_number', '300000000000003'], ['free_shipping_over', '500'], ['pay_cod', '1'], ['pay_bank', '1'], ['pay_gateway', '0'],
             ['bank_name', 'مصرف الراجحي'], ['bank_account_name', 'مؤسسة بيلا روزا'], ['bank_iban', 'SA0000000000000000000000'],
             ['policy_returns', 'الاستبدال خلال 3 أيام من الاستلام بحالة المنتج الأصلية.'], ['moyasar_publishable_key', ''],
         ].map(([key, value]) => ({ key, value, is_public: true })),
         categories: [
-            { id: 'a0000000-0000-4000-8000-000000000001', name: 'فساتين سهرة', slug: 'evening-dresses', sort_order: 1, is_active: true },
+            { id: 'a0000000-0000-4000-8000-000000000001', name: 'فساتين مناسبات', slug: 'occasion-dresses', sort_order: 1, is_active: true },
             { id: 'a0000000-0000-4000-8000-000000000002', name: 'فساتين يومية', slug: 'casual-dresses', sort_order: 2, is_active: true },
-            { id: 'a0000000-0000-4000-8000-000000000003', name: 'عبايات', slug: 'abayas', sort_order: 3, is_active: true },
-            { id: 'a0000000-0000-4000-8000-000000000004', name: 'بلوزات وتنانير', slug: 'tops-skirts', sort_order: 4, is_active: true },
+            { id: 'a0000000-0000-4000-8000-000000000003', name: 'مواليد (0–24 شهر)', slug: 'baby', sort_order: 3, is_active: true },
+            { id: 'a0000000-0000-4000-8000-000000000004', name: 'أطقم وإكسسوارات', slug: 'sets-accessories', sort_order: 4, is_active: true },
         ],
         shipping_rates: ['الرياض', 'جدة', 'مكة المكرمة', 'الدمام', 'مدينة أخرى'].map((city, i) => ({ id: uuid(), city, fee: i < 2 ? 25 : 35, is_active: true, sort_order: i })),
         products: [], product_variants: [], product_images: [], orders: [], order_items: [], order_events: [], stock_movements: [],
@@ -31,16 +31,18 @@ function seed() {
         const id = `c0000000-0000-4000-8000-00000000000${n}`;
         db.products.push({ id, category_id: db.categories[cat].id, name, description: 'وصف تجريبي للمنتج ' + name, price, compare_at_price: cmp, is_active: true, is_featured: feat, sort_order: n, created_at: new Date(Date.now() - n * 864e5).toISOString(), updated_at: new Date().toISOString() });
         let k = 0;
-        for (const s of sizes) for (const c of colors) db.product_variants.push({ id: uuid(), product_id: id, size: s, color: c, sku: null, stock: (n === 1 && s === 'S') ? 0 : stock, price_override: null, is_active: true, sort_order: k++ });
+        for (const s of sizes) for (const c of colors) db.product_variants.push({ id: uuid(), product_id: id, size: s, color: c, sku: null, stock: (n === 1 && s === '2-3 سنوات') ? 0 : stock, price_override: null, is_active: true, sort_order: k++ });
     };
-    P(1, 0, 'فستان سهرة ساتان — وردي مغبر', 890, 1150, true, ['S', 'M', 'L', 'XL'], ['']);
-    P(2, 0, 'فستان سهرة مطرّز — أسود', 1290, null, true, ['S', 'M', 'L', 'XL'], ['']);
-    P(3, 1, 'فستان يومي قطن — أزرق سماوي', 240, null, true, ['S', 'M', 'L', 'XL'], ['']);
-    P(4, 1, 'فستان كتان مزهّر', 320, 380, false, ['S', 'M', 'L', 'XL'], ['']);
-    P(5, 2, 'عباية كلوش بحواف ذهبية', 450, null, true, ['52', '54', '56'], [''], 4);
-    P(6, 2, 'عباية ملونة — بيج', 380, null, false, ['52', '54', '56'], [''], 4);
-    P(7, 3, 'بلوزة شيفون بفيونكة', 165, null, false, ['S', 'M', 'L'], ['أبيض', 'وردي', 'أسود'], 2);
-    P(8, 3, 'تنورة بليسيه طويلة', 190, 230, false, [''], ['أسود', 'بيج', 'زيتي'], 5);
+    const AGES = ['2-3 سنوات', '4-5 سنوات', '6-7 سنوات', '8-9 سنوات', '10-11 سنة'];
+    const BABY = ['0-3 أشهر', '3-6 أشهر', '6-12 شهر', '12-18 شهر', '18-24 شهر'];
+    P(1, 0, 'فستان تول بفيونكة ساتان — وردي', 320, 390, true, AGES, ['']);
+    P(2, 0, 'فستان حفلات مطرّز بالترتر — عاجي', 450, null, true, AGES, ['']);
+    P(3, 1, 'فستان قطن إسباني مزهّر', 165, null, true, AGES, ['']);
+    P(4, 1, 'فستان كتان بحمالات — أزرق سماوي', 145, 180, false, AGES, ['']);
+    P(5, 2, 'فستان مواليد قطن بكشكشة', 120, null, true, BABY, [''], 4);
+    P(6, 2, 'طقم مواليد: فستان + غطاء رأس', 160, null, false, BABY, [''], 4);
+    P(7, 3, 'طقم فستان وبوليرو محبوك', 260, null, false, AGES.slice(0, 3), ['وردي', 'أبيض', 'كحلي'], 2);
+    P(8, 3, 'طوق شعر بزهور', 45, 60, false, [''], ['وردي', 'أبيض', 'ذهبي'], 5);
     db.product_images.push({ id: uuid(), product_id: db.products[0].id, path: 'demo/a.png', sort_order: 0 });
     return db;
 }

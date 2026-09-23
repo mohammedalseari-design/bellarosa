@@ -19,7 +19,7 @@ const BASE = `http://127.0.0.1:${PORT}/`;
 
     await step('checkout offers the gateway first and creates a pending order', async () => {
         await page.goto(BASE + '#/p/c0000000-0000-4000-8000-000000000003', { waitUntil: 'networkidle' });
-        await page.click('[data-size="L"]'); await page.click('#addBtn');
+        await page.click('[data-size="6-7 سنوات"]'); await page.click('#addBtn');
         await page.goto(BASE + '#/checkout'); await page.waitForSelector('#checkoutForm');
         const first = await page.locator('input[name=payment_method]').first().getAttribute('value');
         if (first !== 'gateway') throw new Error('first method ' + first);
@@ -28,7 +28,7 @@ const BASE = `http://127.0.0.1:${PORT}/`;
         await page.waitForSelector('#mysrForm #mockPay', { timeout: 15000 });
         if (db.orders[0].payment_status !== 'pending') throw new Error('status ' + db.orders[0].payment_status);
         const opts = await page.evaluate(() => window.__moyasarOpts);
-        if (opts.amount !== 26500 || opts.currency !== 'SAR' || opts.metadata.order_id !== db.orders[0].id) throw new Error('init opts ' + JSON.stringify(opts));
+        if (opts.amount !== 19000 || opts.currency !== 'SAR' || opts.metadata.order_id !== db.orders[0].id) throw new Error('init opts ' + JSON.stringify(opts));
         if (!opts.callback_url.includes('?pay=BR-1001&t=')) throw new Error('callback ' + opts.callback_url);
         await page.screenshot({ path: path.join(OUT, '13-order-gateway.png'), fullPage: true });
     });

@@ -25,21 +25,21 @@ const BASE = `http://127.0.0.1:${PORT}/`;
     });
 
     await step('shop filter by category', async () => {
-        await page.goto(BASE + '#/shop?cat=abayas', { waitUntil: 'networkidle' });
+        await page.goto(BASE + '#/shop?cat=baby', { waitUntil: 'networkidle' });
         await page.waitForSelector('.product-card');
         const n = await page.locator('.product-card').count();
-        if (n !== 2) throw new Error('expected 2 abayas, got ' + n);
+        if (n !== 2) throw new Error('expected 2 baby items, got ' + n);
         const h1 = await page.locator('h1').first().textContent();
-        if (!h1.includes('عبايات')) throw new Error('h1=' + h1);
+        if (!h1.includes('مواليد')) throw new Error('h1=' + h1);
     });
 
     await step('product page: size selection + add to cart', async () => {
         await page.goto(BASE + '#/p/c0000000-0000-4000-8000-000000000001', { waitUntil: 'networkidle' });
         await page.waitForSelector('#addBtn');
         if (!(await page.locator('#addBtn').isDisabled())) throw new Error('add enabled before size chosen');
-        const sDisabled = await page.locator('[data-size="S"]').isDisabled();
-        if (!sDisabled) throw new Error('size S (out of stock) should be disabled');
-        await page.click('[data-size="M"]');
+        const sDisabled = await page.locator('[data-size="2-3 سنوات"]').isDisabled();
+        if (!sDisabled) throw new Error('size 2-3 (out of stock) should be disabled');
+        await page.click('[data-size="4-5 سنوات"]');
         await page.click('#qtyPlus');
         if ((await page.locator('#qtyVal').textContent()) !== '2') throw new Error('qty not 2');
         await page.click('#addBtn');
@@ -49,10 +49,10 @@ const BASE = `http://127.0.0.1:${PORT}/`;
         await page.screenshot({ path: path.join(OUT, '02-product-mobile.png'), fullPage: true });
     });
 
-    await step('second product to cart (skirt, color only)', async () => {
+    await step('second product to cart (headband, color only)', async () => {
         await page.goto(BASE + '#/p/c0000000-0000-4000-8000-000000000008', { waitUntil: 'networkidle' });
         await page.waitForSelector('#addBtn');
-        await page.click('[data-color="بيج"]');
+        await page.click('[data-color="وردي"]');
         await page.click('#addBtn');
         await page.waitForSelector('.toast.show');
     });
@@ -63,7 +63,7 @@ const BASE = `http://127.0.0.1:${PORT}/`;
         const lines = await page.locator('.cart-line').count();
         if (lines !== 2) throw new Error('lines=' + lines);
         const total = await page.locator('.summary-row.total .price').textContent();
-        if (!total.replace(/,/g, '').startsWith('1970')) throw new Error('subtotal shown ' + total); // 890*2 + 190
+        if (!total.replace(/,/g, '').startsWith('685')) throw new Error('subtotal shown ' + total); // 320*2 + 45
         await page.screenshot({ path: path.join(OUT, '03-cart-mobile.png'), fullPage: true });
     });
 
@@ -78,14 +78,14 @@ const BASE = `http://127.0.0.1:${PORT}/`;
         await page.fill('#f_address', 'شارع الأمير سلطان، عمارة 5');
         await page.check('input[name=payment_method][value=cod]');
         const feeText = await page.locator('#summaryBox').textContent();
-        if (!feeText.includes('مجاني') || !feeText.includes('1,970')) throw new Error('free shipping total not shown: ' + feeText);
+        if (!feeText.includes('مجاني') || !feeText.includes('685')) throw new Error('free shipping total not shown: ' + feeText);
         await page.screenshot({ path: path.join(OUT, '04-checkout-mobile.png'), fullPage: true });
         await page.click('#submitBtn');
         await page.waitForSelector('.order-no', { timeout: 20000 });
         orderNo = (await page.locator('.order-no').textContent()).trim();
         if (!/^BR-\d+$/.test(orderNo)) throw new Error('order no ' + orderNo);
         const body = await page.locator('#app').textContent();
-        if (!body.includes('1,970')) throw new Error('order total missing');
+        if (!body.includes('685')) throw new Error('order total missing');
         if (!body.includes('الدفع عند الاستلام')) throw new Error('COD box missing');
         await page.screenshot({ path: path.join(OUT, '05-order-mobile.png'), fullPage: true });
         console.log('     order:', orderNo);

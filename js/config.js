@@ -7,5 +7,5 @@ window.BELLAROSA_CONFIG = {
     AUTH_EMAIL_DOMAIN: 'users.bellarosa.sa',
     // بعد الانتقال إلى Shopify: ضع رابط المتجر هنا (مثل 'https://bellarosa.myshopify.com') فتتحول كل روابط
     // الموقع القديم إليه فوراً. فارغ = الموقع الحالي يعمل كالمعتاد. (docs/TASK_SHOPIFY.md)
-    SHOP_REDIRECT: ''
+    SHOP_REDIRECT: 'https://xek1yq-gj.myshopify.com'
 };

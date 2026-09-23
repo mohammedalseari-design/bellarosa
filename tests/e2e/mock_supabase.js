@@ -134,6 +134,11 @@ function getOrder(db, no, key) {
 
 // ----- ربط بالمتصفح -----
 async function install(page, db = seed(), { log = () => {} } = {}) {
+    // الموقع الحي يحوّل إلى Shopify عبر SHOP_REDIRECT؛ الاختبارات تفرّغه لتختبر الموقع القديم نفسه
+    await page.route(/\/js\/config\.js(\?.*)?$/, r => {
+        const src = require('fs').readFileSync(require('path').join(__dirname, '../../js/config.js'), 'utf8');
+        r.fulfill({ status: 200, contentType: 'application/javascript', body: src.replace(/SHOP_REDIRECT:\s*'[^']*'/, "SHOP_REDIRECT: ''") });
+    });
     await page.route(/cdn\.jsdelivr\.net\/npm\/@supabase\/supabase-js/, r => r.fulfill({ status: 200, contentType: 'application/javascript', body: SUPABASE_JS }));
     await page.route(/fonts\.(googleapis|gstatic)\.com/, r => r.fulfill({ status: 200, contentType: 'text/css', body: '' }));
     // محاكاة نموذج Moyasar: زر يعيد التوجيه إلى callback_url مع id/status كما تفعل البوابة

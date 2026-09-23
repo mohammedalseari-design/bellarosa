@@ -1,7 +1,7 @@
 # ثيم بيلا روزا العربي (Horizon)
 
-هذه نُسخ حرفية من ملفات JSON الأربعة التي رُفعت إلى نسخة الثيم «Horizon — بيلا روزا (عربي)»
-(`gid://shopify/OnlineStoreTheme/192364740889`) في متجر Shopify، عبر `themeFilesUpsert` (23 سبتمبر 2026).
+هذه نُسخ حرفية من ملفات JSON الأربعة في الثيم المنشور «بيلا روزا — الثيم العربي»
+(`gid://shopify/OnlineStoreTheme/192373424409`، 24 سبتمبر 2026)، رُفعت عبر `themeFilesUpsert`.
 باقي ملفات الثيم (liquid/css/js) هي ملفات Horizon الأصلية بلا تعديل.
 
 | الملف | ماذا يضبط |
@@ -14,8 +14,9 @@
 ## التعديل
 
 1. عدّل الملف هنا (المفاتيح والقيم تتبع مخطط Horizon: `type_preset`، `alignment`، المدى ≤ 50 لـ `corner_radius`، إلخ).
-2. ارفعه بـ `themeFilesUpsert` على الثيم غير المنشور (الـ API يرفض الكتابة على الثيم المنشور)، أو الصقه من
-   Online Store → Themes → ⋯ → Edit code.
-3. عاين من Customize ثم Publish.
+2. الـ API يرفض الكتابة على الثيم المنشور: انسخه (`themeDuplicate`) ثم ارفع الملف على النسخة بـ `themeFilesUpsert`،
+   أو الصقه مباشرة من Online Store → Themes → ⋯ → Edit code.
+3. عاين النسخة (`?preview_theme_id=<id>`) ثم انشرها من Online Store → Themes.
 
-الصور (الشعار، صورة الغلاف، صور الفئات) تُرفع من Customize ولا تُحفظ هنا.
+صورة الغلاف الحالية في `shopify/media/hero-bg.jpg` (مرفوعة في Files باسم `bellarosa-hero-bg.jpg` ومشار إليها بـ
+`shopify://shop_images/bellarosa-hero-bg.jpg`). الشعار وصور الفئات تُرفع من Customize.

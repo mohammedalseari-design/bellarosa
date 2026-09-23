@@ -91,7 +91,7 @@
             "contact": {
               "type": "text",
               "settings": {
-                "text": "<p>واتساب: يُضاف الرقم من الإعدادات<br>البريد: mohammed.alseari@gmail.com</p>",
+                "text": "<p>البريد: mohammed.alseari@gmail.com<br>الاستلام من المحل — جدة</p>",
                 "width": "100%",
                 "max_width": "normal",
                 "alignment": "left",

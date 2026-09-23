@@ -1,7 +1,8 @@
 # بيلا روزا — متجر إلكتروني (bellarosa)
 
-> **تحديث 23 سبتمبر 2026:** المتجر الأساسي أصبح على Shopify (`docs/TASK_SHOPIFY.md`). هذا المستودع يبقى للموقع
-> القديم الذي يتحول إلى Shopify عبر `SHOP_REDIRECT` في `js/config.js`، ولنظام Supabase كنسخة احتياطية.
+> **تحديث 24 سبتمبر 2026:** المتجر الأساسي على Shopify ومفتوح للجميع: https://xek1yq-gj.myshopify.com
+> (`docs/TASK_SHOPIFY.md`). الموقع القديم هنا يحوّل إليه تلقائياً عبر `SHOP_REDIRECT` في `js/config.js` (اختبارات المتصفح
+> تفرّغه لتختبر الموقع القديم نفسه)، ونظام Supabase باقٍ كنسخة احتياطية.
 
 متجر فساتين أطفال وملابس بيبي إسبانية: واجهة متجر للزبونات + لوحة إدارة، بنفس أسلوب عمل [ملائم](https://github.com/mohammedalseari-design/mulaem-dash):
 ملفات ثابتة على **GitHub Pages**، وقاعدة البيانات والصلاحيات والتخزين على **Supabase** (مشروع «بيلا روزا»، `oxsttfljqbunanmwdzft`، منظمة mulaem).

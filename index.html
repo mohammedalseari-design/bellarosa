@@ -19,6 +19,8 @@
     <!-- Supabase (UMD) ثم الإعدادات العامة -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script src="js/config.js"></script>
+    <!-- بعد الانتقال إلى Shopify: رابط المتجر في SHOP_REDIRECT (js/config.js) يحوّل كل الروابط القديمة إليه فوراً -->
+    <script>(function () { var to = (window.BELLAROSA_CONFIG || {}).SHOP_REDIRECT; if (to) location.replace(to); })();</script>
 </head>
 
 <body>

@@ -4,5 +4,8 @@
 window.BELLAROSA_CONFIG = {
     SUPABASE_URL: 'https://oxsttfljqbunanmwdzft.supabase.co',
     SUPABASE_KEY: 'sb_publishable_uajb7fCr4OlcHYz9DY-tUw_2_BlVQx-',
-    AUTH_EMAIL_DOMAIN: 'users.bellarosa.sa'
+    AUTH_EMAIL_DOMAIN: 'users.bellarosa.sa',
+    // بعد الانتقال إلى Shopify: ضع رابط المتجر هنا (مثل 'https://bellarosa.myshopify.com') فتتحول كل روابط
+    // الموقع القديم إليه فوراً. فارغ = الموقع الحالي يعمل كالمعتاد. (docs/TASK_SHOPIFY.md)
+    SHOP_REDIRECT: ''
 };

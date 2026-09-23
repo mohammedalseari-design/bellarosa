@@ -1,6 +1,6 @@
 # بيلا روزا — متجر إلكتروني (bellarosa)
 
-متجر فساتين وملابس أطفال إسبانية: واجهة متجر للزبونات + لوحة إدارة، بنفس أسلوب عمل [ملائم](https://github.com/mohammedalseari-design/mulaem-dash):
+متجر فساتين أطفال وملابس بيبي إسبانية: واجهة متجر للزبونات + لوحة إدارة، بنفس أسلوب عمل [ملائم](https://github.com/mohammedalseari-design/mulaem-dash):
 ملفات ثابتة على **GitHub Pages**، وقاعدة البيانات والصلاحيات والتخزين على **Supabase** (مشروع «بيلا روزا»، `oxsttfljqbunanmwdzft`، منظمة mulaem).
 
 ## المبدأ

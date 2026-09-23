@@ -11,7 +11,7 @@ const uuid = () => 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, c => 
 function seed() {
     const db = {
         settings: [
-            ['store_name', 'بيلا روزا'], ['store_tagline', 'فساتين وملابس أطفال إسبانية بذوق مختلف'], ['store_phone', '0500000000'], ['store_whatsapp', '966500000000'],
+            ['store_name', 'بيلا روزا'], ['store_tagline', 'فساتين أطفال وملابس بيبي إسبانية بذوق مختلف'], ['store_phone', '0500000000'], ['store_whatsapp', '966500000000'],
             ['store_instagram', 'bellarosa'], ['announcement', 'شحن مجاني للطلبات فوق 500 ر.س'], ['currency', 'ر.س'], ['vat_enabled', '1'], ['vat_rate', '15'],
             ['vat_number', '300000000000003'], ['free_shipping_over', '500'], ['pay_cod', '1'], ['pay_bank', '1'], ['pay_gateway', '0'],
             ['bank_name', 'مصرف الراجحي'], ['bank_account_name', 'مؤسسة بيلا روزا'], ['bank_iban', 'SA0000000000000000000000'],
@@ -20,8 +20,8 @@ function seed() {
         categories: [
             { id: 'a0000000-0000-4000-8000-000000000001', name: 'فساتين مناسبات', slug: 'occasion-dresses', sort_order: 1, is_active: true },
             { id: 'a0000000-0000-4000-8000-000000000002', name: 'فساتين يومية', slug: 'casual-dresses', sort_order: 2, is_active: true },
-            { id: 'a0000000-0000-4000-8000-000000000003', name: 'مواليد (0–24 شهر)', slug: 'baby', sort_order: 3, is_active: true },
-            { id: 'a0000000-0000-4000-8000-000000000004', name: 'أطقم وإكسسوارات', slug: 'sets-accessories', sort_order: 4, is_active: true },
+            { id: 'a0000000-0000-4000-8000-000000000003', name: 'ملابس بيبي (0–24 شهر)', slug: 'baby', sort_order: 3, is_active: true },
+            { id: 'a0000000-0000-4000-8000-000000000004', name: 'إكسسوارات', slug: 'accessories', sort_order: 4, is_active: true },
         ],
         shipping_rates: ['الرياض', 'جدة', 'مكة المكرمة', 'الدمام', 'مدينة أخرى'].map((city, i) => ({ id: uuid(), city, fee: i < 2 ? 25 : 35, is_active: true, sort_order: i })),
         products: [], product_variants: [], product_images: [], orders: [], order_items: [], order_events: [], stock_movements: [],
@@ -39,9 +39,9 @@ function seed() {
     P(2, 0, 'فستان حفلات مطرّز بالترتر — عاجي', 450, null, true, AGES, ['']);
     P(3, 1, 'فستان قطن إسباني مزهّر', 165, null, true, AGES, ['']);
     P(4, 1, 'فستان كتان بحمالات — أزرق سماوي', 145, 180, false, AGES, ['']);
-    P(5, 2, 'فستان مواليد قطن بكشكشة', 120, null, true, BABY, [''], 4);
-    P(6, 2, 'طقم مواليد: فستان + غطاء رأس', 160, null, false, BABY, [''], 4);
-    P(7, 3, 'طقم فستان وبوليرو محبوك', 260, null, false, AGES.slice(0, 3), ['وردي', 'أبيض', 'كحلي'], 2);
+    P(5, 2, 'فستان بيبي قطن بكشكشة', 120, null, true, BABY, [''], 4);
+    P(6, 2, 'أوفرول بيبي قطن بأزرار خشبية', 95, null, true, BABY, [''], 4);
+    P(7, 2, 'طقم بيبي 3 قطع: بودي + بنطلون + قبعة', 140, 170, false, BABY.slice(0, 3), ['وردي', 'أبيض', 'بيج'], 2);
     P(8, 3, 'طوق شعر بزهور', 45, 60, false, [''], ['وردي', 'أبيض', 'ذهبي'], 5);
     db.product_images.push({ id: uuid(), product_id: db.products[0].id, path: 'demo/a.png', sort_order: 0 });
     return db;

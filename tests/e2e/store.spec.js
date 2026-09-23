@@ -28,9 +28,9 @@ const BASE = `http://127.0.0.1:${PORT}/`;
         await page.goto(BASE + '#/shop?cat=baby', { waitUntil: 'networkidle' });
         await page.waitForSelector('.product-card');
         const n = await page.locator('.product-card').count();
-        if (n !== 2) throw new Error('expected 2 baby items, got ' + n);
+        if (n !== 3) throw new Error('expected 3 baby items, got ' + n);
         const h1 = await page.locator('h1').first().textContent();
-        if (!h1.includes('مواليد')) throw new Error('h1=' + h1);
+        if (!h1.includes('بيبي')) throw new Error('h1=' + h1);
     });
 
     await step('product page: size selection + add to cart', async () => {

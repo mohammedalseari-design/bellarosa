@@ -25,7 +25,7 @@ function seed() {
         ],
         shipping_rates: ['الرياض', 'جدة', 'مكة المكرمة', 'الدمام', 'مدينة أخرى'].map((city, i) => ({ id: uuid(), city, fee: i < 2 ? 25 : 35, is_active: true, sort_order: i })),
         products: [], product_variants: [], product_images: [], orders: [], order_items: [], order_events: [], stock_movements: [],
-        profiles: [{ id: '11111111-1111-4111-8111-111111111111', username: 'bandar', fullname: 'بندر', role: 'admin', is_blocked: false }],
+        profiles: [{ id: '11111111-1111-4111-8111-111111111111', username: 'bandar', fullname: 'بندر', role: 'admin', is_blocked: false, must_change_password: false }],
     };
     const P = (n, cat, name, price, cmp, feat, sizes, colors, stock = 3) => {
         const id = `c0000000-0000-4000-8000-00000000000${n}`;
@@ -151,10 +151,21 @@ async function install(page, db = seed(), { log = () => {} } = {}) {
             log(m, u.pathname + u.search);
             if (u.pathname.startsWith('/auth/v1/token')) {
                 const b = req.postDataJSON();
-                if (b.email !== 'bandar@users.bellarosa.sa' || b.password !== 'test-pass-1234') return json({ error: 'invalid_grant', error_description: 'Invalid login credentials' }, 400);
+                if (b.email !== 'bandar@users.bellarosa.sa' || b.password !== (db.__password || 'test-pass-1234')) return json({ error: 'invalid_grant', error_description: 'Invalid login credentials' }, 400);
                 return json({ access_token: 'header.' + Buffer.from(JSON.stringify({ sub: db.profiles[0].id, role: 'authenticated', exp: Math.floor(Date.now() / 1000) + 3600 })).toString('base64url') + '.sig', token_type: 'bearer', expires_in: 3600, expires_at: Math.floor(Date.now() / 1000) + 3600, refresh_token: 'r', user: { id: db.profiles[0].id, email: b.email, aud: 'authenticated', role: 'authenticated', app_metadata: {}, user_metadata: {}, created_at: new Date().toISOString() } });
             }
-            if (u.pathname.startsWith('/auth/v1/user')) return json({ id: db.profiles[0].id, email: 'bandar@users.bellarosa.sa', aud: 'authenticated', role: 'authenticated', app_metadata: {}, user_metadata: {}, created_at: new Date().toISOString() });
+            if (u.pathname.startsWith('/auth/v1/user')) {
+                // PUT = تغيير كلمة المرور (auth.updateUser)؛ GET = بيانات المستخدم الحالي
+                if (m === 'PUT') {
+                    const b = req.postDataJSON() || {};
+                    if (typeof b.password === 'string') {
+                        if (b.password.length < 6) return json({ code: 422, msg: 'Password should be at least 6 characters.' }, 422);
+                        if (b.password === (db.__password || 'test-pass-1234')) return json({ code: 422, msg: 'New password should be different from the old password.' }, 422);
+                        db.__password = b.password; db.__passwordChanges = (db.__passwordChanges || 0) + 1;
+                    }
+                }
+                return json({ id: db.profiles[0].id, email: 'bandar@users.bellarosa.sa', aud: 'authenticated', role: 'authenticated', app_metadata: {}, user_metadata: {}, created_at: new Date().toISOString() });
+            }
             if (u.pathname.startsWith('/auth/v1/logout')) return r.fulfill({ status: 204, body: '' });
             if (u.pathname.startsWith('/storage/v1/object/public/')) return r.fulfill({ status: 200, contentType: 'image/png', body: PNG_1x1 });
             if (u.pathname.startsWith('/storage/v1/object/product-images')) return json({ Key: 'product-images/' + u.pathname.split('product-images/')[1], Id: uuid() });
@@ -173,6 +184,7 @@ async function install(page, db = seed(), { log = () => {} } = {}) {
             if (u.pathname.startsWith('/rest/v1/rpc/')) {
                 const fn = u.pathname.split('/rpc/')[1]; const b = req.postDataJSON() || {};
                 if (fn === 'keepalive') return json(new Date().toISOString());
+                if (fn === 'password_changed') { db.profiles[0].must_change_password = false; return r.fulfill({ status: 204, body: '' }); }
                 if (fn === 'place_order') { try { return json(placeOrder(db, b.p)); } catch (e) { return json({ message: e.message, code: 'P0001' }, 400); } }
                 if (fn === 'get_order') return json(getOrder(db, b.p_order_no, b.p_key));
                 return json({ message: 'unknown rpc' }, 404);

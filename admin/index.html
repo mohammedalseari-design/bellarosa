@@ -32,6 +32,20 @@
         </form>
     </div>
 
+    <!-- تعيين كلمة مرور جديدة (إجباري عند أول دخول بكلمة مرور مؤقتة) -->
+    <div class="login-wrap" id="pwScreen" hidden>
+        <form class="login-box" id="pwForm" autocomplete="off">
+            <img src="../images/logo.svg" alt="" width="56" height="56">
+            <h1>كلمة مرور جديدة</h1>
+            <p class="muted">دخلتِ بكلمة مرور مؤقتة؛ عيّني كلمة مرورك الخاصة قبل المتابعة (8 خانات فأكثر).</p>
+            <div class="alert" id="pwError" hidden></div>
+            <div class="field"><label for="pw1">كلمة المرور الجديدة</label><input id="pw1" type="password" required minlength="8" autocomplete="new-password"></div>
+            <div class="field"><label for="pw2">تأكيد كلمة المرور</label><input id="pw2" type="password" required minlength="8" autocomplete="new-password"></div>
+            <button class="btn btn-primary btn-block" type="submit" id="pwBtn">حفظ والمتابعة</button>
+            <button class="btn btn-ghost btn-block" type="button" id="pwLogout">خروج</button>
+        </form>
+    </div>
+
     <!-- التطبيق -->
     <div class="shell" id="appShell" hidden>
         <header class="topbar">
@@ -41,6 +55,7 @@
             </a>
             <a class="topbar-link" href="../" target="_blank" rel="noopener">فتح المتجر ↗</a>
             <span class="user-badge" id="userBadge"></span>
+            <button class="btn btn-ghost btn-sm" id="changePwBtn" type="button" title="تغيير كلمة المرور">كلمة المرور</button>
             <button class="btn btn-ghost btn-sm" id="logoutBtn" type="button">خروج</button>
         </header>
         <nav class="sidenav" id="sideNav">

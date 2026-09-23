@@ -2,27 +2,29 @@
 
 ## ما هو جاهز الآن
 
-- مشروع Supabase «بيلا روزا» (`oxsttfljqbunanmwdzft`، منظمة mulaem، eu-central-1) مُنشأ، والهجرتان `001_init` و`002_place_order_search_path`
-  مطبّقتان، والبيانات التجريبية (`scripts/seed-demo.sql`) محمّلة.
+- مشروع Supabase «بيلا روزا» (`oxsttfljqbunanmwdzft`، منظمة mulaem، eu-central-1) مُنشأ، والهجرات `001`–`004`
+  مطبّقة، والبيانات التجريبية (`scripts/seed-demo.sql`) محمّلة.
 - `js/config.js` يحمل رابط المشروع والمفتاح العام.
+- حساب المدير الأول `bandar` مُنشأ بكلمة مرور مؤقتة (أُبلغ بها صاحب المتجر خارج المستودع)؛ اللوحة تُجبره على تعيين
+  كلمة مروره الخاصة عند أول دخول، ولا تُحفظ في أي مكان غير Supabase.
 
-## 1. أول حساب مدير (مرة واحدة، من لوحة Supabase)
+## 1. حسابات الدخول (المدير والموظفات)
 
 الدخول للوحة الإدارة باسم مستخدم يُحوَّل داخلياً إلى إيميل `username@users.bellarosa.sa` (لا يلزم بريد حقيقي).
 
-1. لوحة Supabase → المشروع «بيلا روزا» → **Authentication → Users → Add user → Create new user**:
-   - Email: `bandar@users.bellarosa.sa` (أو أي اسم مستخدم آخر بنفس الصيغة)
-   - Password: كلمة مرور قوية (8 خانات فأكثر) — تكتبها أنت ولا تُشارك.
-   - فعّل **Auto Confirm User**.
-2. **SQL Editor** ونفّذ (غيّر اسم المستخدم والاسم الكامل):
-   ```sql
-   insert into public.profiles (id, username, fullname, role)
-   select id, 'bandar', 'بندر', 'admin' from auth.users where email = 'bandar@users.bellarosa.sa';
-   ```
-3. افتح `admin/` وادخل باسم المستخدم `bandar` وكلمة المرور.
+**الطريقة المعتمدة:** `scripts/add-staff.sql` في SQL Editor — عدّل اسم المستخدم والاسم الكامل والدور (`admin`/`staff`) وكلمة
+مرور مؤقتة، ونفّذ. تُبلَّغ الموظفة بكلمة المرور المؤقتة، وعند أول دخول تُطلب منها كلمة مرور جديدة قبل أن تُفتح اللوحة
+(`profiles.must_change_password`). في الملف نفسه أوامر الحظر وإعادة التفعيل وإعادة تعيين كلمة مرور منسية.
 
-الموظفات الأخريات بنفس الطريقة مع `role = 'staff'` (لا يعدّلن الإعدادات). حتى تُبنى إدارة الموظفين من اللوحة (المرحلة 3)
-هذه هي الطريقة الوحيدة، وحظر موظفة = `update public.profiles set is_blocked = true where username = '...'`.
+**بديل من لوحة Supabase:** Authentication → Users → Add user → Create new user (Email بالصيغة أعلاه + Password + Auto Confirm)،
+ثم في SQL Editor:
+```sql
+insert into public.profiles (id, username, fullname, role, must_change_password)
+select id, 'noura', 'نورة', 'staff', true from auth.users where email = 'noura@users.bellarosa.sa';
+```
+
+أي موظفة تغيّر كلمة مرورها متى شاءت من زر «كلمة المرور» في شريط اللوحة. الموظفة (`staff`) لا تعدّل الإعدادات.
+حتى تُبنى إدارة الموظفين من اللوحة (المرحلة 3) هذه هي الطريقة الوحيدة.
 
 ## 2. النشر على GitHub Pages
 
@@ -47,6 +49,6 @@
 
 ## 5. إعادة البناء من الصفر (إن لزم)
 
-1. مشروع Supabase جديد → نفّذ `supabase/migrations/001_init.sql` ثم `002_place_order_search_path.sql` في SQL Editor.
+1. مشروع Supabase جديد → نفّذ ملفات `supabase/migrations/` بالترتيب (001 → 004) في SQL Editor.
 2. ضع الرابط والمفتاح العام في `js/config.js`، وعدّل رابط المشروع والمفتاح في `.github/workflows/keepalive.yml`.
 3. الخطوات 1–4 أعلاه.

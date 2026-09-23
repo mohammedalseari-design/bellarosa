@@ -10,14 +10,16 @@ const BASE = `http://127.0.0.1:${PORT}/admin/`;
     const browser = await chromium.launch();
     const page = await browser.newPage({ viewport: { width: 1280, height: 860 } });
     const db = seed();
+    // الحساب الأول يدخل بكلمة مرور مؤقتة ويُجبر على تغييرها
+    db.profiles[0].must_change_password = true;
     // طلب تجريبي موجود مسبقاً
     const v = db.product_variants.find(x => x.product_id === db.products[2].id && x.size === '4-5 سنوات');
     const mockLog = [];
     await install(page, db, { log: (...a) => mockLog.push(a.join(' ')) });
     const errors = [];
     page.on('pageerror', e => errors.push('pageerror: ' + e.message));
-    // خطأ 400 المتوقع من محاولة الدخول بكلمة مرور خاطئة لا يُعدّ عطلاً
-    page.on('console', m => { if (m.type() === 'error' && !/400/.test(m.text())) errors.push('console: ' + m.text()); });
+    // خطأ 400/422 المتوقع من كلمة مرور خاطئة أو مرفوضة لا يُعدّ عطلاً
+    page.on('console', m => { if (m.type() === 'error' && !/400|422/.test(m.text())) errors.push('console: ' + m.text()); });
     const step = async (name, fn) => { try { await fn(); console.log('OK  ', name); } catch (e) { console.log('FAIL', name, '-', e.message); process.exitCode = 1; } };
 
     // إنشاء طلب عبر واجهة المتجر أولاً (نفس المحاكاة)
@@ -43,9 +45,34 @@ const BASE = `http://127.0.0.1:${PORT}/admin/`;
         await page.waitForSelector('#loginError:not([hidden])');
     });
 
-    await step('login + dashboard', async () => {
+    await step('first login forces a new password (mismatch, too short, then ok)', async () => {
         await page.fill('#password', 'test-pass-1234');
         await page.click('#loginBtn');
+        await page.waitForSelector('#pwScreen:not([hidden])');
+        if (!(await page.locator('#appShell').isHidden())) throw new Error('app opened before password change');
+        await page.fill('#pw1', 'Rosa-2026-new'); await page.fill('#pw2', 'Rosa-2026-neu');
+        await page.click('#pwBtn');
+        await page.waitForSelector('#pwError:not([hidden])');
+        let err = await page.locator('#pwError').textContent();
+        if (!err.includes('غير متطابقتين')) throw new Error('mismatch message: ' + err);
+        // الأقصر من 8: يمنعه المتصفح (minlength) قبل الإرسال
+        await page.fill('#pw1', 'short'); await page.fill('#pw2', 'short');
+        await page.click('#pwBtn');
+        await page.waitForTimeout(300);
+        if (db.__passwordChanges) throw new Error('short password reached the server');
+        // نفس كلمة المرور المؤقتة تُرفض من السيرفر
+        await page.fill('#pw1', 'test-pass-1234'); await page.fill('#pw2', 'test-pass-1234');
+        await page.click('#pwBtn');
+        await page.waitForFunction(() => document.querySelector('#pwError')?.textContent.includes('تختلف'));
+        await page.screenshot({ path: path.join(OUT, '07b-first-login-password.png'), fullPage: true });
+        await page.fill('#pw1', 'Rosa-2026-new'); await page.fill('#pw2', 'Rosa-2026-new');
+        await page.click('#pwBtn');
+        await page.waitForSelector('#appShell:not([hidden])');
+        if (db.__password !== 'Rosa-2026-new') throw new Error('password not stored');
+        if (db.profiles[0].must_change_password) throw new Error('must_change_password still true');
+    });
+
+    await step('dashboard after login', async () => {
         await page.waitForSelector('#appShell:not([hidden])');
         await page.waitForSelector('.kpi');
         const text = await page.locator('#content').textContent();
@@ -173,7 +200,26 @@ const BASE = `http://127.0.0.1:${PORT}/admin/`;
         await page.screenshot({ path: path.join(OUT, '12-admin-mobile.png'), fullPage: false });
     });
 
-    await step('logout', async () => {
+    await step('change password from the topbar', async () => {
+        await page.setViewportSize({ width: 1280, height: 860 });
+        await page.click('#changePwBtn');
+        await page.waitForSelector('#pwModalForm');
+        await page.fill('#mpw1', 'Rosa-2026-two'); await page.fill('#mpw2', 'Rosa-2026-two');
+        await page.click('#mpwSave');
+        await page.waitForSelector('#modal', { state: 'hidden' });
+        if (db.__password !== 'Rosa-2026-two') throw new Error('password not changed');
+    });
+
+    await step('logout + login with the new password', async () => {
+        await page.click('#logoutBtn');
+        await page.waitForSelector('#loginScreen:not([hidden])');
+        await page.fill('#username', 'bandar'); await page.fill('#password', 'test-pass-1234');
+        await page.click('#loginBtn');
+        await page.waitForSelector('#loginError:not([hidden])');
+        await page.fill('#password', 'Rosa-2026-two');
+        await page.click('#loginBtn');
+        await page.waitForSelector('#appShell:not([hidden])');
+        if (!(await page.locator('#pwScreen').isHidden())) throw new Error('password screen shown again');
         await page.click('#logoutBtn');
         await page.waitForSelector('#loginScreen:not([hidden])');
     });

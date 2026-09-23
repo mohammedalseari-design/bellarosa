@@ -14,18 +14,23 @@ jobs:
   dump:
     runs-on: ubuntu-latest
     steps:
-      # يسبق كل شيء: بلا السر لا فائدة من التثبيت ولا من الرفع، ونريد رسالة مفهومة لا فشلاً غامضاً.
+      # يسبق كل شيء: بلا السر لا فائدة من التثبيت ولا من الرفع. حتى يُضاف السر يُتخطى التشغيل بتحذير
+      # (لا فشل) كي لا تصل رسائل فشل ليلية؛ بعد إضافته يعمل النسخ من الليلة التالية بلا أي تعديل.
       - name: Check the database URL secret is set
+        id: check
         env:
           SUPABASE_DB_URL: ${{ secrets.SUPABASE_DB_URL }}
         run: |
           if [ -z "$SUPABASE_DB_URL" ]; then
-            echo "::error::add the SUPABASE_DB_URL secret — see docs/BACKUP.md"
-            exit 1
+            echo "::warning::SUPABASE_DB_URL secret not set yet — backup skipped (see docs/BACKUP.md)"
+            echo "ready=false" >> "$GITHUB_OUTPUT"
+          else
+            echo "ready=true" >> "$GITHUB_OUTPUT"
           fi
 
       # عميل postgres بنفس إصدار الخادم الرئيسي (Postgres 17)؛ إصدار أقدم من pg_dump يرفض الاتصال.
       - name: Install the PostgreSQL 17 client
+        if: steps.check.outputs.ready == 'true'
         run: |
           sudo install -d /usr/share/postgresql-common/pgdg
           sudo curl -fsSL -o /usr/share/postgresql-common/pgdg/apt.postgresql.org.asc \
@@ -37,6 +42,7 @@ jobs:
           pg_dump --version
 
       - name: Dump the database
+        if: steps.check.outputs.ready == 'true'
         env:
           SUPABASE_DB_URL: ${{ secrets.SUPABASE_DB_URL }}
         run: |
@@ -46,6 +52,7 @@ jobs:
           ls -lh "$file.gz"
 
       - name: Upload the backup artifact
+        if: steps.check.outputs.ready == 'true'
         uses: actions/upload-artifact@v4
         with:
           name: bellarosa-db-backup

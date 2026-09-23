@@ -82,14 +82,91 @@ async function loadProfile() {
 function showLogin(msg) {
     $('#bootScreen').hidden = true;
     $('#appShell').hidden = true;
+    $('#pwScreen').hidden = true;
     $('#loginScreen').hidden = false;
     const e = $('#loginError');
     e.hidden = !msg; e.textContent = msg || '';
 }
-async function showApp(profile) {
+
+// ---------- كلمة المرور ----------
+// تُرجع رسالة عربية إن كانت المدخلات غير صالحة، وإلا فارغة
+function passwordProblem(p1, p2) {
+    if (p1.length < 8) return 'كلمة المرور يجب أن تكون 8 خانات فأكثر';
+    if (p1 !== p2) return 'كلمتا المرور غير متطابقتين';
+    return '';
+}
+function passwordErr(error) {
+    const m = error?.message || '';
+    if (/different from the old/i.test(m)) return 'كلمة المرور الجديدة يجب أن تختلف عن الحالية';
+    if (/at least \d+ characters/i.test(m)) return 'كلمة المرور قصيرة جداً';
+    if (/weak|pwned|easy to guess/i.test(m)) return 'كلمة المرور ضعيفة أو شائعة؛ اختاري كلمة أقوى';
+    return errMsg(error);
+}
+// تغيير كلمة مرور الحساب الحالي في Supabase ثم رفع علم الإلزام عن الملف
+export async function changePassword(p1, p2) {
+    const problem = passwordProblem(p1, p2);
+    if (problem) throw new Error(problem);
+    const { error } = await sb.auth.updateUser({ password: p1 });
+    if (error) throw new Error(passwordErr(error));
+    const { error: e2 } = await sb.rpc('password_changed');
+    if (e2) throw new Error(errMsg(e2));
+    if (app.profile) app.profile.must_change_password = false;
+}
+// شاشة إجبارية: لا تُفتح اللوحة قبل تعيين كلمة مرور خاصة (بعد الدخول بكلمة المرور المؤقتة)
+function showPasswordScreen(profile) {
     app.profile = profile;
     $('#bootScreen').hidden = true;
     $('#loginScreen').hidden = true;
+    $('#appShell').hidden = true;
+    $('#pwScreen').hidden = false;
+    $('#pwError').hidden = true;
+    $('#pw1').value = ''; $('#pw2').value = '';
+    $('#pw1').focus();
+}
+$('#pwForm').addEventListener('submit', async e => {
+    e.preventDefault();
+    const btn = $('#pwBtn'), err = $('#pwError');
+    btn.disabled = true; err.hidden = true;
+    try {
+        await changePassword($('#pw1').value, $('#pw2').value);
+        $('#pw1').value = ''; $('#pw2').value = '';
+        await showApp(app.profile);
+        toast('تم حفظ كلمة المرور الجديدة');
+    } catch (ex) {
+        err.textContent = ex.message; err.hidden = false;
+    } finally { btn.disabled = false; }
+});
+$('#pwLogout').addEventListener('click', async () => { await sb.auth.signOut(); location.hash = ''; showLogin(); });
+// تغيير اختياري من شريط اللوحة (لأي موظف)
+$('#changePwBtn').addEventListener('click', () => {
+    const body = openModal('تغيير كلمة المرور', `
+        <form id="pwModalForm" autocomplete="off">
+            <div class="alert" id="pwModalError" hidden></div>
+            <div class="field"><label for="mpw1">كلمة المرور الجديدة</label><input id="mpw1" type="password" required minlength="8" autocomplete="new-password"></div>
+            <div class="field"><label for="mpw2">تأكيد كلمة المرور</label><input id="mpw2" type="password" required minlength="8" autocomplete="new-password"></div>
+            <div class="actions"><button class="btn btn-outline" type="button" id="mpwCancel">إلغاء</button><button class="btn btn-primary" type="submit" id="mpwSave">حفظ</button></div>
+        </form>`, { narrow: true });
+    $('#mpwCancel', body).onclick = closeModal;
+    $('#pwModalForm', body).addEventListener('submit', async e => {
+        e.preventDefault();
+        const btn = $('#mpwSave', body), err = $('#pwModalError', body);
+        btn.disabled = true; err.hidden = true;
+        try {
+            await changePassword($('#mpw1', body).value, $('#mpw2', body).value);
+            closeModal();
+            toast('تم تغيير كلمة المرور');
+        } catch (ex) {
+            err.textContent = ex.message; err.hidden = false; btn.disabled = false;
+        }
+    });
+});
+
+async function showApp(profile) {
+    if (profile.must_change_password) { showPasswordScreen(profile); return; }
+    app.profile = profile;
+    $('#bootScreen').hidden = true;
+    $('#loginScreen').hidden = true;
+    $('#pwScreen').hidden = true;
     $('#appShell').hidden = false;
     $('#userBadge').textContent = (profile.fullname || profile.username) + (profile.role === 'admin' ? ' · مدير' : '');
     $$('[data-admin]').forEach(a => a.hidden = profile.role !== 'admin');

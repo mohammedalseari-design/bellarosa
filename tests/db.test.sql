@@ -11,9 +11,9 @@ declare
     v_uid      uuid := gen_random_uuid();
     v_email    text := 'test_staff_' || substr(v_uid::text, 1, 8) || '@users.bellarosa.sa';
     v_phone    text := '0500000099';
-    v_var_m1   uuid;   -- فستان 1 مقاس M
-    v_var_s1   uuid;   -- فستان 1 مقاس S (نافد)
-    v_var_m3   uuid;   -- فستان 3 مقاس M
+    v_var_m1   uuid;   -- فستان 1 مقاس 4-5 سنوات
+    v_var_s1   uuid;   -- فستان 1 مقاس 2-3 سنوات (نافد)
+    v_var_m3   uuid;   -- فستان 3 مقاس 4-5 سنوات
     v_stock0   integer;
     v_res      jsonb;
     v_order_no text;
@@ -23,9 +23,9 @@ declare
     v_t        numeric;
     v_started  timestamptz := clock_timestamp();
 begin
-    select id into v_var_m1 from public.product_variants where product_id = 'c0000000-0000-4000-8000-000000000001' and size = 'M';
-    select id into v_var_s1 from public.product_variants where product_id = 'c0000000-0000-4000-8000-000000000001' and size = 'S';
-    select id into v_var_m3 from public.product_variants where product_id = 'c0000000-0000-4000-8000-000000000003' and size = 'M';
+    select id into v_var_m1 from public.product_variants where product_id = 'c0000000-0000-4000-8000-000000000001' and size = '4-5 سنوات';
+    select id into v_var_s1 from public.product_variants where product_id = 'c0000000-0000-4000-8000-000000000001' and size = '2-3 سنوات';
+    select id into v_var_m3 from public.product_variants where product_id = 'c0000000-0000-4000-8000-000000000003' and size = '4-5 سنوات';
     select stock into v_stock0 from public.product_variants where id = v_var_m1;
 
     -- موظف وهمي (يُحذف في النهاية)
@@ -74,11 +74,11 @@ begin
     v_order_no := v_res->>'order_no';
     v_token := v_res->>'access_token';
     v_order_id := (v_res->>'id')::uuid;
-    if (v_res->>'subtotal')::numeric <> 1370 or (v_res->>'shipping_fee')::numeric <> 25
-       or (v_res->>'total')::numeric <> 1395 or (v_res->>'vat_amount')::numeric <> 181.96 then
+    if (v_res->>'subtotal')::numeric <> 650 or (v_res->>'shipping_fee')::numeric <> 25
+       or (v_res->>'total')::numeric <> 675 or (v_res->>'vat_amount')::numeric <> 88.04 then
         raise exception 'FAIL T5: مبالغ غير صحيحة %', v_res;
     end if;
-    r := array_append(r, 'PASS T5 إنشاء طلب: ' || v_order_no || ' — الإجمالي 1395 والضريبة 181.96 محسوبة في السيرفر');
+    r := array_append(r, 'PASS T5 إنشاء طلب: ' || v_order_no || ' — الإجمالي 675 (320 + 2×165 + شحن 25) والضريبة 88.04 محسوبة في السيرفر');
 
     select stock into v_n from public.product_variants where id = v_var_m1;
     if v_n <> v_stock0 - 1 then raise exception 'FAIL T6: المخزون لم يُحجز (% بدل %)', v_n, v_stock0 - 1; end if;
@@ -139,7 +139,7 @@ begin
     end;
 
     v_res := public.get_order(v_order_no, v_token);
-    if v_res is null or (v_res->>'total')::numeric <> 1395 or jsonb_array_length(v_res->'items') <> 2 then
+    if v_res is null or (v_res->>'total')::numeric <> 675 or jsonb_array_length(v_res->'items') <> 2 then
         raise exception 'FAIL T13: get_order بالرمز أعاد %', v_res;
     end if;
     if public.get_order(v_order_no, 'wrong') is not null then raise exception 'FAIL T13: رمز خاطئ قُبل'; end if;
@@ -157,7 +157,7 @@ begin
 
     update public.orders set status = 'confirmed', total = 1 where id = v_order_id;
     select total into v_t from public.orders where id = v_order_id;
-    if v_t <> 1395 then raise exception 'FAIL T15: الإجمالي تغيّر إلى %', v_t; end if;
+    if v_t <> 675 then raise exception 'FAIL T15: الإجمالي تغيّر إلى %', v_t; end if;
     select count(*) into v_n from public.order_events where order_id = v_order_id and event = 'status' and details = 'confirmed' and actor_name = 'موظف اختبار';
     if v_n <> 1 then raise exception 'FAIL T15: حدث التأكيد لم يُسجَّل باسم الموظف'; end if;
     r := array_append(r, 'PASS T15 تغيير الحالة يُسجَّل باسم الموظف، والمبالغ لا تتغير');
@@ -198,14 +198,31 @@ begin
         r := array_append(r, 'PASS T20 الموظف يضيف ملاحظة فقط، لا أحداث دفع');
     end;
 
+    -- كلمة المرور المؤقتة: password_changed() ترفع علم الإلزام عن الموظف نفسه فقط، ولا يعدّل الموظف ملفه مباشرة
+    execute 'reset role';
+    update public.profiles set must_change_password = true where id = v_uid;
+    select count(*) into v_t from public.profiles where id <> v_uid and must_change_password;   -- أعلام الآخرين قبل
+    execute 'set local role authenticated';
+    perform set_config('request.jwt.claims', json_build_object('sub', v_uid, 'role', 'authenticated')::text, true);
+    update public.profiles set must_change_password = false where id = v_uid;
+    get diagnostics v_n = row_count;
+    if v_n <> 0 then raise exception 'FAIL T21: الموظف عدّل ملفه مباشرة'; end if;
+    perform public.password_changed();
+    select count(*) into v_n from public.profiles where id = v_uid and must_change_password;
+    if v_n <> 0 then raise exception 'FAIL T21: password_changed لم ترفع العلم'; end if;
+    execute 'reset role';
+    select count(*) into v_n from public.profiles where id <> v_uid and must_change_password;   -- أعلام الآخرين بعد
+    if v_n <> v_t then raise exception 'FAIL T21: password_changed أثّرت في موظفين آخرين'; end if;
+    r := array_append(r, 'PASS T21 كلمة المرور المؤقتة: العلم يُرفع عبر password_changed فقط وللموظف نفسه');
+
     -- الموظف المعطَّل يُعامل كمجهول
     execute 'reset role';
     update public.profiles set is_blocked = true where id = v_uid;
     execute 'set local role authenticated';
     perform set_config('request.jwt.claims', json_build_object('sub', v_uid, 'role', 'authenticated')::text, true);
     select count(*) into v_n from public.orders;
-    if v_n <> 0 then raise exception 'FAIL T21: الموظف المعطَّل يرى الطلبات'; end if;
-    r := array_append(r, 'PASS T21 الموظف المعطَّل لا يرى شيئاً');
+    if v_n <> 0 then raise exception 'FAIL T22: الموظف المعطَّل يرى الطلبات'; end if;
+    r := array_append(r, 'PASS T22 الموظف المعطَّل لا يرى شيئاً');
 
     -- ===== التنظيف =====
     execute 'reset role';

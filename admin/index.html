@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>بيلا روزا — لوحة الإدارة</title>
+    <meta name="robots" content="noindex">
+    <link rel="icon" type="image/svg+xml" href="../images/logo.svg">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Amiri:wght@700&family=Tajawal:wght@400;500;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="admin.css">
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="../js/config.js"></script>
+</head>
+
+<body>
+    <!-- تظهر حتى تُقرأ الجلسة -->
+    <div class="boot" id="bootScreen">جارٍ التحقق من الجلسة…</div>
+
+    <!-- شاشة الدخول -->
+    <div class="login-wrap" id="loginScreen" hidden>
+        <form class="login-box" id="loginForm">
+            <img src="../images/logo.svg" alt="" width="56" height="56">
+            <h1>بيلا روزا</h1>
+            <p class="muted">لوحة الإدارة</p>
+            <div class="alert" id="loginError" hidden></div>
+            <div class="field"><label for="username">اسم المستخدم</label><input id="username" required autocomplete="username"></div>
+            <div class="field"><label for="password">كلمة المرور</label><input id="password" type="password" required autocomplete="current-password"></div>
+            <button class="btn btn-primary btn-block" type="submit" id="loginBtn">دخول</button>
+        </form>
+    </div>
+
+    <!-- التطبيق -->
+    <div class="shell" id="appShell" hidden>
+        <header class="topbar">
+            <a class="brand" href="#/">
+                <img src="../images/logo.svg" alt="" width="30" height="30">
+                <span>بيلا روزا <small>الإدارة</small></span>
+            </a>
+            <a class="topbar-link" href="../" target="_blank" rel="noopener">فتح المتجر ↗</a>
+            <span class="user-badge" id="userBadge"></span>
+            <button class="btn btn-ghost btn-sm" id="logoutBtn" type="button">خروج</button>
+        </header>
+        <nav class="sidenav" id="sideNav">
+            <a href="#/" data-page="dashboard">اللوحة</a>
+            <a href="#/orders" data-page="orders">الطلبات <span class="pill" id="newOrdersPill" hidden></span></a>
+            <a href="#/products" data-page="products">المنتجات</a>
+            <a href="#/categories" data-page="categories">التصنيفات</a>
+            <a href="#/shipping" data-page="shipping">الشحن</a>
+            <a href="#/settings" data-page="settings" data-admin>الإعدادات</a>
+        </nav>
+        <main class="content" id="content"></main>
+    </div>
+
+    <div class="modal-backdrop" id="modal" hidden>
+        <div class="modal" role="dialog" aria-modal="true">
+            <div class="modal-head"><h2 id="modalTitle"></h2><button class="icon-btn" id="modalClose" type="button" aria-label="إغلاق">✕</button></div>
+            <div class="modal-body" id="modalBody"></div>
+        </div>
+    </div>
+
+    <div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+    <script type="module" src="js/app.js"></script>
+</body>
+
+</html>

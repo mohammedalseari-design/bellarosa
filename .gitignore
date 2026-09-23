@@ -1,0 +1,17 @@
+# أسرار وإعدادات محلية (مفتاح الخدمة والمفتاح السري لبوابة الدفع لا يدخلان المستودع أبداً)
+.env
+.env.*
+supabase/.env
+supabase/.temp/
+
+# صور وبيانات عمل
+uploads/
+*.zip
+
+# نظام التشغيل والمحررات
+.DS_Store
+Thumbs.db
+desktop.ini
+.vscode/
+.idea/
+node_modules/
